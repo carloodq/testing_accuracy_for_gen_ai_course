@@ -1,14 +1,8 @@
 {
-  "Bob": {
+  "Carlo": {
     "accuracy": 100.0,
-    "correct": 4,
-    "total": 4,
-    "timestamp": "2025-10-05T18:17:14.959067"
-  },
-  "Alex": {
-    "accuracy": 75.0,
-    "correct": 3,
-    "total": 4,
-    "timestamp": "2025-10-05T18:18:19.845117"
+    "correct": 4123,
+    "total": 4123,
+    "timestamp": "2025-10-06T00:53:51.808311"
   }
 }

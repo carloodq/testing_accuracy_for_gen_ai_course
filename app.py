@@ -3,6 +3,7 @@ import pandas as pd
 import json
 import os
 from datetime import datetime
+import time
 
 # File paths for persistence
 LEADERBOARD_FILE = 'leaderboard.json'
@@ -32,7 +33,8 @@ def load_actuals():
         try:
             df = pd.read_csv(ACTUALS_FILE, header=None)
             actuals = df.values.flatten().tolist()
-            actuals = [float(x) for x in actuals if pd.notna(x)]
+            # Keep as strings, strip whitespace and filter out NaN
+            actuals = [str(x).strip() for x in actuals if pd.notna(x) and str(x).strip() != '']
             return actuals
         except:
             return None
@@ -48,7 +50,8 @@ def parse_csv(uploaded_file):
     try:
         df = pd.read_csv(uploaded_file, header=None)
         values = df.values.flatten().tolist()
-        values = [float(x) for x in values if pd.notna(x)]
+        # Keep values as strings, but strip whitespace and filter out NaN
+        values = [str(x).strip() for x in values if pd.notna(x) and str(x).strip() != '']
         return values
     except Exception as e:
         st.error(f"Error parsing CSV: {e}")
@@ -60,6 +63,15 @@ st.set_page_config(
     page_icon="🎯",
     layout="centered"
 )
+
+# Auto-refresh every 30 seconds
+if 'last_refresh' not in st.session_state:
+    st.session_state.last_refresh = time.time()
+
+current_time = time.time()
+if current_time - st.session_state.last_refresh > 30:
+    st.session_state.last_refresh = current_time
+    st.rerun()
 
 # Custom CSS
 st.markdown("""
@@ -113,17 +125,32 @@ with st.expander("🔒 Admin Section - Upload Actuals", expanded=not st.session_
     else:
         st.success("✅ Admin access granted")
         
-        # Check if actuals already exist
-        existing_actuals = load_actuals()
-        if existing_actuals:
-            st.info(f"📊 Actuals already loaded: {len(existing_actuals)} values")
-            if st.button("Replace Actuals", key="replace_actuals"):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if st.button("🗑️ Reset Leaderboard", type="secondary", use_container_width=True):
+                if os.path.exists(LEADERBOARD_FILE):
+                    os.remove(LEADERBOARD_FILE)
+                    st.success("Leaderboard reset successfully!")
+                    st.rerun()
+                else:
+                    st.info("Leaderboard is already empty")
+        
+        with col2:
+            if st.button("🔄 Replace Actuals", use_container_width=True):
                 st.session_state.actuals_data = None
                 if os.path.exists(ACTUALS_FILE):
                     os.remove(ACTUALS_FILE)
                 st.rerun()
         
-        if not existing_actuals or st.session_state.get('replacing_actuals'):
+        st.markdown("---")
+        
+        # Check if actuals already exist
+        existing_actuals = load_actuals()
+        if existing_actuals:
+            st.info(f"📊 Actuals already loaded: {len(existing_actuals)} values")
+        
+        if not existing_actuals:
             actuals_file = st.file_uploader(
                 "Upload Actuals CSV",
                 type=['csv'],
@@ -172,7 +199,9 @@ col1, col2 = st.columns([3, 2])
 with col1:
     name_option = st.selectbox(
         "Choose name",
-        ["", "Bob", "Alex", "Ben", "Other"],
+        ["", "Abdullah", "Abdulelah", "Abdulaziz", "Ammar", "Asma", "Hamed", 
+         "Hamad", "Fay", "Raghad", "Renad", "Shamoukh", "Hytham", "Mohammed", 
+         "Mohannad", "Manal", "Noura", "Hawra", "Dana", "Yara", "Other"],
         key="name_select"
     )
 
@@ -225,6 +254,10 @@ st.markdown("---")
 
 # Leaderboard Section
 st.subheader("🏆 Leaderboard")
+
+# Add refresh indicator
+time_since_refresh = int(time.time() - st.session_state.last_refresh)
+st.caption(f"🔄 Auto-refreshing every 30 seconds | Last refresh: {time_since_refresh}s ago")
 
 leaderboard = load_leaderboard()
 
