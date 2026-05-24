@@ -1,3 +1,4 @@
+from typing import Any
 import streamlit as st
 import pandas as pd
 import json
@@ -137,7 +138,12 @@ with st.expander("🔒 Admin Section - Upload Actuals", expanded=not st.session_
                     st.info("Leaderboard is already empty")
         
         with col2:
-            if st.button("🔄 Replace Actuals", use_container_width=True):
+            st.markdown(
+                "[🔗 Download the dataset figures_classifier](https://colab.research.google.com/drive/12qp1T7a6yGY2QCBmlwxQ5P5sFZwTAaN-?authuser=1#scrollTo=JSKo7nushjxu)",
+                unsafe_allow_html=True
+            )
+       
+            if st.button("🔄 Replace Actuals - just a single column csv with no header", use_container_width=True):
                 st.session_state.actuals_data = None
                 if os.path.exists(ACTUALS_FILE):
                     os.remove(ACTUALS_FILE)
@@ -176,6 +182,16 @@ if st.session_state.actuals_data is None:
 
 # Predictions Upload Section
 st.subheader("📊 Upload Predictions")
+# with open("sample.csv", "rb") as f:
+#     st.download_button(
+#         label="📥 Click here to download sample.csv",
+#         data=f,
+#         file_name="sample.csv",
+#         mime="text/csv",
+#         help="Download the sample CSV to get an idea of the required format."
+#     )
+
+
 
 predictions_file = st.file_uploader(
     "Upload your predictions CSV",
@@ -183,6 +199,8 @@ predictions_file = st.file_uploader(
     key="predictions_uploader",
     help="Upload the CSV file containing your predictions"
 )
+
+
 
 predictions_data = None
 if predictions_file is not None:
@@ -199,9 +217,12 @@ col1, col2 = st.columns([3, 2])
 with col1:
     name_option = st.selectbox(
         "Choose name",
-        ["", "Abdullah", "Abdulelah", "Abdulaziz", "Ammar", "Asma", "Hamed", 
-         "Hamad", "Fay", "Raghad", "Renad", "Shamoukh", "Hytham", "Mohammed", 
-         "Mohannad", "Manal", "Noura", "Hawra", "Dana", "Yara", "Other"],
+            ["", "Abdulmalik", "Shahad", "Shumukh", "Mohammed", "Ahmed",
+             "Faisal Khalid Sajdi Alotaibi", "Naif", "Jorie", "Salsabil",
+              "May", "Monerah", "Dana", "Aseel", "Nada", "Nouf Muaysh Alharthi",
+               "Musaad", "Sarah", "Faisal Yousef Alsuqayri", "Khaled", "Abdulaziz",
+                "Rana", "Raghad", "Nouf Khalid Alharbi", "Fahad", "Anas", "Folwa", "Other"],
+       
         key="name_select"
     )
 
@@ -273,7 +294,7 @@ else:
     
     medals = ['🥇', '🥈', '🥉']
     
-    for idx, (name, data) in enumerate(sorted_leaderboard):
+    for idx, (name, data) in enumerate[tuple](sorted_leaderboard):
         rank = idx + 1
         medal = medals[idx] if idx < 3 else f"#{rank}"
         
